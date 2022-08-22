@@ -1,10 +1,11 @@
 #include "Calibration.hh"
+#include <stdio.h>
 
 ClassImp(FebexMWD)
 ClassImp(Calibration)
 
-void FebexMWD::DoMWD() {
-		
+void FebexMWD::DoMWD(std::string trace_name) {
+	
 	// Define the peaking time for this channel based on rise time then go to centre of flat top
 	float peaking_time = flat_top - (float)rise_time * fraction;
 
@@ -66,13 +67,26 @@ void FebexMWD::DoMWD() {
 		// Trigger when we pass the threshold on the CFD
 		if( ( cfd[i] > threshold && threshold > 0 ) ||
 		    ( cfd[i] < threshold && threshold < 0 ) ) {
-			
+			//
 			// Find zero crossing
 			while( cfd[i] * cfd[i-1] > 0 && i < trace_length ) i++;
 			
 			// Reject incorrect polarity
 			if( threshold < 0 && cfd[i-1] > 0 ) continue;
 			if( threshold > 0 && cfd[i-1] < 0 ) continue;
+
+			if( trace_name != "" ) {
+				// Write trace to a file
+	//			std::cout << "Good trace, writing to file" << std::endl;
+				printf("Good trace, writing to file");
+				std::string traceFileName = "traces/" + trace_name + ".tsv";
+				FILE * traceFile;
+				traceFile = fopen (traceFileName.c_str(), "w");
+				for( unsigned k = 0; k < trace_length; ++k) {
+					fprintf(traceFile, "%u\t%u\n", k, trace[k]);
+				}
+				fclose (traceFile);
+			}
 
 			// Check we have enough trace left to analyse
 			if( trace_length - i < peaking_time + window/2 )
@@ -241,7 +255,13 @@ float Calibration::FebexEnergy( unsigned int sfp, unsigned int board, unsigned i
 	
 }
 
-FebexMWD Calibration::DoMWD( unsigned int sfp, unsigned int board, unsigned int ch, std::vector<unsigned short> trace ) {
+FebexMWD Calibration::DoMWD( unsigned int sfp, unsigned int board, unsigned int ch, std::vector<unsigned short> trace) {
+	std::string trace_name = "";
+	return DoMWD( sfp, board, ch, trace, trace_name );
+}
+
+
+FebexMWD Calibration::DoMWD( unsigned int sfp, unsigned int board, unsigned int ch, std::vector<unsigned short> trace, std::string trace_name ) {
 	
 	// Create a FebexMWD class to hold the info
 	FebexMWD mwd;
@@ -262,7 +282,7 @@ FebexMWD Calibration::DoMWD( unsigned int sfp, unsigned int board, unsigned int 
 		mwd.SetFraction( fFebexCFD_Fraction[sfp][board][ch] );
 
 		// Run the MWD
-		mwd.DoMWD();
+		mwd.DoMWD(trace_name);
 		
 	}
 

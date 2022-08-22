@@ -30,7 +30,7 @@ public:
 	virtual inline ~FebexMWD() {};
 
 	// Main algorithm
-	void DoMWD();
+	void DoMWD(std::string trace_name);
 	
 	// Set functions
 	inline void SetTrace( std::vector<unsigned short> t ){ trace = t; };
@@ -142,7 +142,8 @@ public:
 	float FebexEnergy( unsigned int sfp, unsigned int board, unsigned int ch, unsigned short raw );
 	float FebexThreshold( unsigned int sfp, unsigned int board, unsigned int ch );
 	long FebexTime( unsigned int sfp, unsigned int board, unsigned int ch );
-	FebexMWD DoMWD( unsigned int sfp, unsigned int board, unsigned int ch, std::vector<unsigned short> trace );
+	FebexMWD DoMWD( unsigned int sfp, unsigned int board, unsigned int ch, std::vector<unsigned short> trace, std::string trace_name );
+	FebexMWD DoMWD( unsigned int sfp, unsigned int board, unsigned int ch, std::vector<unsigned short> trace);
 
 	
 private:

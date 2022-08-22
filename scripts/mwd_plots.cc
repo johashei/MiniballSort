@@ -35,7 +35,8 @@ void mwd_plots( std::string filename = "test/R4_13.root", unsigned int sfp = 0,
 	TH1F *h = new TH1F( "mwd_energy", "Energy spectrum", 65536, -0.5, 65535.5 );
 	
 	// Loop
-	for( unsigned long long i = 0; i < nentries; ++i ){
+	unsigned long long single_number = 1019816;
+	for( unsigned long long i = single_number-1; i < single_number+1; ++i ){
 		        
 		// Get entry
 		t->GetEntry(i);
@@ -52,7 +53,8 @@ void mwd_plots( std::string filename = "test/R4_13.root", unsigned int sfp = 0,
 		    febex->GetChannel() == ch ) {
 		
 			// MWD data
-			FebexMWD mwd = cal->DoMWD( sfp, board, ch, febex->GetTrace() );
+			std::string trace_name = "trace" + std::to_string(i);
+			FebexMWD mwd = cal->DoMWD( sfp, board, ch, febex->GetTrace());//, trace_name );
 			
 			// Fill histogram
 			for( unsigned int i = 0; i < mwd.NumberOfTriggers(); ++i )
